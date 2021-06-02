@@ -1,0 +1,41 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:2.3.4.RELEASE")
+    }
+}
+
+plugins {
+    id 'java'
+    id "org.springframework.boot" version "2.3.4.RELEASE"
+}
+
+group 'com.kuuhaku'
+version 'STANDALONE'
+sourceCompatibility = JavaVersion.VERSION_15
+targetCompatibility = JavaVersion.VERSION_15
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: '2.3.4.RELEASE'
+    implementation group: "org.java-websocket", name: "Java-WebSocket", version: "1.5.1"
+    implementation group: 'org.bytedeco', name: 'javacv', version: '1.5.5'
+    implementation group: 'org.bytedeco', name: 'javacv-platform', version: '1.5.5'
+    implementation group: 'org.json', name: 'json', version: '20210307'
+    testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '2.3.4.RELEASE'
+}
+
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+
+bootJar {
+    baseName = 'gs-rest-service'
+    version =  '0.1.0'
+}
+
+compileJava.options.encoding = 'UTF-8'
