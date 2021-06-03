@@ -23,6 +23,7 @@ import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 import org.json.JSONObject;
+import org.springframework.http.HttpStatus;
 
 import java.net.InetSocketAddress;
 import java.util.HashMap;
@@ -59,28 +60,34 @@ public class EncoderSocket extends WebSocketServer {
 		JSONObject data = new JSONObject(payload);
 
 		String hash = data.getString("hash");
-		int size = data.getInt("size");
-		int index = data.getInt("index");
 		DataType type = data.getEnum(DataType.class, "type");
+		JSONObject jo = new JSONObject() {{
+			put("hash", hash);
+			put("type", type);
+		}};
+
 		switch (type) {
 			case BEGIN -> {
+				int size = data.getInt("size");
 				pending.put(hash, new VideoData(hash, size, data.getInt("width"), data.getInt("height")));
-				Application.logger.info("Received payload (" + index + "/" + size + " ) with hash " + hash + ": Data stream START");
+				Application.logger.info("Received payload (total frames: " + size + ") with hash " + hash + ": Data stream BEGIN");
+				jo.put("code", HttpStatus.CREATED);
 			}
 			case NEXT -> {
-				pending.get(hash).getFrames().add(data.getString("data"));
-				Application.logger.info("Received payload (" + index + "/" + size + " ) with hash " + hash + ": Data stream NEXT");
+				VideoData vd = pending.get(hash);
+				vd.getFrames().add(data.getString("data"));
+				Application.logger.info("Received payload (" + vd.getFrames().size() + "/" + vd.getSize() + ") with hash " + hash + ": Data stream NEXT");
+				jo.put("code", HttpStatus.CONTINUE);
 			}
 			case END -> {
-				queue.queue(pending.remove(hash));
-				Application.logger.info("Received payload (" + index + "/" + size + " ) with hash " + hash + ": Data stream END");
+				VideoData vd = pending.remove(hash);
+				queue.queue(vd);
+				Application.logger.info("Received payload (" + (vd.getFrames().size() * 100 / vd.getSize()) + "% received) with hash " + hash + ": Data stream END");
+				jo.put("code", HttpStatus.PROCESSING);
 			}
 		}
 
-		conn.send(new JSONObject(){{
-			put("hash", hash);
-			put("type", type);
-		}}.toString());
+		conn.send(jo.toString());
 	}
 
 	@Override
