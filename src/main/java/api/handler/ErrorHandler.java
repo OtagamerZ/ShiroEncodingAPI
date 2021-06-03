@@ -21,6 +21,7 @@ package api.handler;
 import org.json.JSONObject;
 import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -37,6 +38,15 @@ public class ErrorHandler implements ErrorController {
 		return new JSONObject(){{
 			put("code", HttpStatus.NOT_FOUND);
 			put("message", "Requested file not found");
+		}};
+	}
+
+	@ExceptionHandler(MissingServletRequestParameterException.class)
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	public JSONObject badRequest() {
+		return new JSONObject(){{
+			put("code", HttpStatus.BAD_REQUEST);
+			put("message", "Missing p parameter");
 		}};
 	}
 
