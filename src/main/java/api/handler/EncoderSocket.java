@@ -73,6 +73,9 @@ public class EncoderSocket extends WebSocketServer {
 			}};
 
 			switch (type) {
+				case PING -> {
+					jo.put("code", HttpStatus.OK.value());
+				}
 				case BEGIN -> {
 					if (pending.containsKey(hash)) {
 						conn.send(new JSONObject() {{
