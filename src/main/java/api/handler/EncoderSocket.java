@@ -41,7 +41,11 @@ public class EncoderSocket extends WebSocketServer {
 	@Override
 	public void onOpen(WebSocket conn, ClientHandshake handshake) {
 		if (client != null) {
-			conn.close(401, "Another client is already connected to socket");
+			conn.send(new JSONObject(){{
+				put("code", HttpStatus.LOCKED);
+				put("message", "Another client is already connected to socket");
+			}}.toString());
+			conn.close();
 			return;
 		}
 		client = conn;
