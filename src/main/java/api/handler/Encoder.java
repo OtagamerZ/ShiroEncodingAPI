@@ -1,5 +1,6 @@
 package api.handler;
 
+import api.Application;
 import org.bytedeco.ffmpeg.global.avcodec;
 import org.bytedeco.ffmpeg.global.avutil;
 import org.bytedeco.javacv.FFmpegFrameRecorder;
@@ -18,7 +19,7 @@ public class Encoder {
 		int w = alignData(data.getWidth());
 		int h = alignData(data.getHeight());
 
-		File f = new File(data.getHash() + ".mp4");
+		File f = new File(Application.files, data.getHash() + ".mp4");
 		if (!f.exists())
 			f.createNewFile();
 

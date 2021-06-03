@@ -25,7 +25,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -37,8 +36,8 @@ public class Application {
 	private static final ExecutorService exec = Executors.newSingleThreadExecutor();
 
 	@SuppressWarnings("ResultOfMethodCallIgnored")
-	public static void main(String[] args) throws IOException {
-		files.createNewFile();
+	public static void main(String[] args) {
+		files.mkdir();
 		SpringApplication.run(Application.class, args);
 	}
 
