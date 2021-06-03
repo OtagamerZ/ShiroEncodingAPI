@@ -36,7 +36,7 @@ public class ErrorHandler implements ErrorController {
 	@ResponseStatus(HttpStatus.NOT_FOUND)
 	public String notFound() {
 		return new JSONObject(){{
-			put("code", HttpStatus.NOT_FOUND);
+			put("code", HttpStatus.NOT_FOUND.value());
 			put("message", "Requested file not found");
 		}}.toString();
 	}
@@ -45,7 +45,7 @@ public class ErrorHandler implements ErrorController {
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	public String badRequest() {
 		return new JSONObject(){{
-			put("code", HttpStatus.BAD_REQUEST);
+			put("code", HttpStatus.BAD_REQUEST.value());
 			put("message", "Missing p parameter");
 		}}.toString();
 	}

@@ -43,7 +43,7 @@ public class EncoderSocket extends WebSocketServer {
 	public void onOpen(WebSocket conn, ClientHandshake handshake) {
 		if (client != null) {
 			conn.send(new JSONObject() {{
-				put("code", HttpStatus.LOCKED);
+				put("code", HttpStatus.LOCKED.value());
 				put("message", "Another client is already connected to socket");
 			}}.toString());
 			conn.close();
@@ -76,7 +76,7 @@ public class EncoderSocket extends WebSocketServer {
 				case BEGIN -> {
 					if (pending.containsKey(hash)) {
 						conn.send(new JSONObject() {{
-							put("code", HttpStatus.METHOD_NOT_ALLOWED);
+							put("code", HttpStatus.METHOD_NOT_ALLOWED.value());
 							put("message", "Packet stream already opened for hash " + hash);
 						}}.toString());
 						return;
@@ -84,40 +84,40 @@ public class EncoderSocket extends WebSocketServer {
 					int size = data.getInt("size");
 					pending.put(hash, new VideoData(hash, size, data.getInt("width"), data.getInt("height")));
 					Application.logger.info("Received payload (total frames: " + size + ") with hash " + hash + ": Data stream BEGIN");
-					jo.put("code", HttpStatus.CREATED);
+					jo.put("code", HttpStatus.CREATED.value());
 				}
 				case NEXT -> {
 					VideoData vd = pending.getOrDefault(hash, null);
 					if (vd == null) {
 						conn.send(new JSONObject() {{
-							put("code", HttpStatus.METHOD_NOT_ALLOWED);
+							put("code", HttpStatus.METHOD_NOT_ALLOWED.value());
 							put("message", "Packet stream not opened yet for hash " + hash);
 						}}.toString());
 						return;
 					}
 					vd.getFrames().add(data.getString("data"));
 					Application.logger.info("Received payload (" + vd.getFrames().size() + "/" + vd.getSize() + ") with hash " + hash + ": Data stream NEXT");
-					jo.put("code", HttpStatus.CONTINUE);
+					jo.put("code", HttpStatus.CONTINUE.value());
 				}
 				case END -> {
 					VideoData vd = pending.remove(hash);
 					if (vd == null) {
 						conn.send(new JSONObject() {{
-							put("code", HttpStatus.METHOD_NOT_ALLOWED);
+							put("code", HttpStatus.METHOD_NOT_ALLOWED.value());
 							put("message", "Packet stream not open for hash " + hash);
 						}}.toString());
 						return;
 					}
 					queue.queue(vd);
 					Application.logger.info("Received payload (" + (vd.getFrames().size() * 100 / vd.getSize()) + "% received) with hash " + hash + ": Data stream END");
-					jo.put("code", HttpStatus.PROCESSING);
+					jo.put("code", HttpStatus.PROCESSING.value());
 				}
 			}
 
 			conn.send(jo.toString());
 		} catch (JSONException e) {
 			conn.send(new JSONObject() {{
-				put("code", HttpStatus.BAD_REQUEST);
+				put("code", HttpStatus.BAD_REQUEST.value());
 				put("message", "Not enough fields were supplied for this type");
 			}}.toString());
 		}
