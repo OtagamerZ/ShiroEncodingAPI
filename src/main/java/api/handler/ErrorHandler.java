@@ -34,20 +34,20 @@ import java.io.FileNotFoundException;
 public class ErrorHandler implements ErrorController {
 	@ExceptionHandler(FileNotFoundException.class)
 	@ResponseStatus(HttpStatus.NOT_FOUND)
-	public JSONObject notFound() {
+	public String notFound() {
 		return new JSONObject(){{
 			put("code", HttpStatus.NOT_FOUND);
 			put("message", "Requested file not found");
-		}};
+		}}.toString();
 	}
 
 	@ExceptionHandler(MissingServletRequestParameterException.class)
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
-	public JSONObject badRequest() {
+	public String badRequest() {
 		return new JSONObject(){{
 			put("code", HttpStatus.BAD_REQUEST);
 			put("message", "Missing p parameter");
-		}};
+		}}.toString();
 	}
 
 	@Override
