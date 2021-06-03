@@ -19,17 +19,14 @@
 package api.handler;
 
 import org.json.JSONObject;
-import org.springframework.beans.ConversionNotSupportedException;
 import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.converter.HttpMessageNotWritableException;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.imageio.ImageIO;
-import javax.servlet.http.HttpServletResponse;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 
 @RestController
 @ControllerAdvice
