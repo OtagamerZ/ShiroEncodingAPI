@@ -37,12 +37,21 @@ public class Encoder {
 		List<BufferedImage> frames = data.getDecodedFrames();
 		Java2DFrameConverter conv = new Java2DFrameConverter();
 		for (BufferedImage frame : frames) {
-			rec.record(conv.convert(frame), avutil.AV_PIX_FMT_0RGB);
+			rec.record(conv.convert(center(convert(frame), w, h)), avutil.AV_PIX_FMT_0RGB);
 		}
 
 		rec.stop();
 
 		return data.getHash();
+	}
+
+	private static BufferedImage convert(BufferedImage in) {
+		BufferedImage out = new BufferedImage(in.getWidth(), in.getHeight(), BufferedImage.TYPE_INT_RGB);
+		Graphics2D g2d = out.createGraphics();
+		g2d.drawImage(in, 0, 0, null);
+		g2d.dispose();
+
+		return out;
 	}
 
 	private static BufferedImage center(BufferedImage in, int w, int h) {
