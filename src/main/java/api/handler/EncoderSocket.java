@@ -22,6 +22,7 @@ import api.Application;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
 
@@ -61,58 +62,65 @@ public class EncoderSocket extends WebSocketServer {
 
 	@Override
 	public void onMessage(WebSocket conn, String payload) {
-		JSONObject data = new JSONObject(payload);
+		try {
+			JSONObject data = new JSONObject(payload);
 
-		String hash = data.getString("hash");
-		DataType type = data.getEnum(DataType.class, "type");
-		JSONObject jo = new JSONObject() {{
-			put("hash", hash);
-			put("type", type);
-		}};
+			String hash = data.getString("hash");
+			DataType type = data.getEnum(DataType.class, "type");
+			JSONObject jo = new JSONObject() {{
+				put("hash", hash);
+				put("type", type);
+			}};
 
-		switch (type) {
-			case BEGIN -> {
-				if (pending.containsKey(hash)) {
-					conn.send(new JSONObject() {{
-						put("code", HttpStatus.METHOD_NOT_ALLOWED);
-						put("message", "Packet stream already opened for hash " + hash);
-					}}.toString());
-					return;
+			switch (type) {
+				case BEGIN -> {
+					if (pending.containsKey(hash)) {
+						conn.send(new JSONObject() {{
+							put("code", HttpStatus.METHOD_NOT_ALLOWED);
+							put("message", "Packet stream already opened for hash " + hash);
+						}}.toString());
+						return;
+					}
+					int size = data.getInt("size");
+					pending.put(hash, new VideoData(hash, size, data.getInt("width"), data.getInt("height")));
+					Application.logger.info("Received payload (total frames: " + size + ") with hash " + hash + ": Data stream BEGIN");
+					jo.put("code", HttpStatus.CREATED);
 				}
-				int size = data.getInt("size");
-				pending.put(hash, new VideoData(hash, size, data.getInt("width"), data.getInt("height")));
-				Application.logger.info("Received payload (total frames: " + size + ") with hash " + hash + ": Data stream BEGIN");
-				jo.put("code", HttpStatus.CREATED);
-			}
-			case NEXT -> {
-				VideoData vd = pending.getOrDefault(hash, null);
-				if (vd == null) {
-					conn.send(new JSONObject() {{
-						put("code", HttpStatus.METHOD_NOT_ALLOWED);
-						put("message", "Packet stream not opened yet for hash " + hash);
-					}}.toString());
-					return;
+				case NEXT -> {
+					VideoData vd = pending.getOrDefault(hash, null);
+					if (vd == null) {
+						conn.send(new JSONObject() {{
+							put("code", HttpStatus.METHOD_NOT_ALLOWED);
+							put("message", "Packet stream not opened yet for hash " + hash);
+						}}.toString());
+						return;
+					}
+					vd.getFrames().add(data.getString("data"));
+					Application.logger.info("Received payload (" + vd.getFrames().size() + "/" + vd.getSize() + ") with hash " + hash + ": Data stream NEXT");
+					jo.put("code", HttpStatus.CONTINUE);
 				}
-				vd.getFrames().add(data.getString("data"));
-				Application.logger.info("Received payload (" + vd.getFrames().size() + "/" + vd.getSize() + ") with hash " + hash + ": Data stream NEXT");
-				jo.put("code", HttpStatus.CONTINUE);
-			}
-			case END -> {
-				VideoData vd = pending.remove(hash);
-				if (vd == null) {
-					conn.send(new JSONObject() {{
-						put("code", HttpStatus.METHOD_NOT_ALLOWED);
-						put("message", "Packet stream not open for hash " + hash);
-					}}.toString());
-					return;
+				case END -> {
+					VideoData vd = pending.remove(hash);
+					if (vd == null) {
+						conn.send(new JSONObject() {{
+							put("code", HttpStatus.METHOD_NOT_ALLOWED);
+							put("message", "Packet stream not open for hash " + hash);
+						}}.toString());
+						return;
+					}
+					queue.queue(vd);
+					Application.logger.info("Received payload (" + (vd.getFrames().size() * 100 / vd.getSize()) + "% received) with hash " + hash + ": Data stream END");
+					jo.put("code", HttpStatus.PROCESSING);
 				}
-				queue.queue(vd);
-				Application.logger.info("Received payload (" + (vd.getFrames().size() * 100 / vd.getSize()) + "% received) with hash " + hash + ": Data stream END");
-				jo.put("code", HttpStatus.PROCESSING);
 			}
+
+			conn.send(jo.toString());
+		} catch (JSONException e) {
+			conn.send(new JSONObject() {{
+				put("code", HttpStatus.BAD_REQUEST);
+				put("message", "Not enough fields were supplied for this type");
+			}}.toString());
 		}
-
-		conn.send(jo.toString());
 	}
 
 	@Override
