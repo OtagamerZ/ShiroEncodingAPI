@@ -43,6 +43,7 @@ public class ReplayEndpoint {
 		ByteArrayResource res = new ByteArrayResource(Files.readAllBytes(f.toPath()));
 
 		return ResponseEntity.ok()
+				.header("Content-Disposition", "attachment; filename=replay_" + f.getName())
 				.contentLength(f.length())
 				.contentType(MediaType.APPLICATION_OCTET_STREAM)
 				.body(res);
