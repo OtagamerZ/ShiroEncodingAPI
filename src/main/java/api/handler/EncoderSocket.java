@@ -42,7 +42,6 @@ public class EncoderSocket extends WebSocketServer {
 
 	@Override
 	public void onOpen(WebSocket conn, ClientHandshake handshake) {
-		System.out.println();
 		if (!handshake.getFieldValue("Authentication").equals(System.getenv("AUTH"))) {
 			conn.send(new JSONObject() {{
 				put("code", HttpStatus.UNAUTHORIZED.value());
