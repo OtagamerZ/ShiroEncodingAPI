@@ -18,26 +18,27 @@
 
 package api.handler;
 
+import java.io.IOException;
+import java.net.BindException;
 import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.net.SocketException;
 
 public class WebSocketConfig {
-	private final EncoderSocket encoder;
+	private EncoderSocket encoder = null;
 
 	public WebSocketConfig() {
-		EncoderSocket tmp = null;
-		boolean connected = false;
-		while (!connected) {
-			tmp = new EncoderSocket(new InetSocketAddress(8003));
-			connected = true;
-			try {
-				Thread.sleep(2000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
+		try {
+			InetSocketAddress addr = new InetSocketAddress(8003);
+			ServerSocket socket = new ServerSocket();
+			socket.setReuseAddress(true);
+			socket.bind(addr);
 
-		encoder = tmp;
-		encoder.start();
+			encoder = new EncoderSocket(addr);
+			encoder.start();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public EncoderSocket getEncoder() {
