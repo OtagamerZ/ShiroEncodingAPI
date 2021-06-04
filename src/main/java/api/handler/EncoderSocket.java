@@ -42,8 +42,8 @@ public class EncoderSocket extends WebSocketServer {
 
 	@Override
 	public void onOpen(WebSocket conn, ClientHandshake handshake) {
-		handshake.iterateHttpFields().forEachRemaining(System.out::println);
-		/*if (client != null) {
+		System.out.println(handshake.getFieldValue("Authentication"));
+		/*if () {
 			conn.send(new JSONObject() {{
 				put("code", HttpStatus.LOCKED.value());
 				put("message", "Another client is already connected to socket");
