@@ -25,7 +25,7 @@ import java.net.ServerSocket;
 import java.net.SocketException;
 
 public class WebSocketConfig {
-	private EncoderSocket encoder = null;
+	private EncoderSocket encoder;
 
 	public WebSocketConfig() {
 		encoder = new EncoderSocket(new InetSocketAddress(8003));
