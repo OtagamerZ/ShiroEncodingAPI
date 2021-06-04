@@ -20,6 +20,7 @@ package api.handler;
 
 import api.Application;
 import org.java_websocket.WebSocket;
+import org.java_websocket.framing.CloseFrame;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 import org.json.JSONException;
@@ -46,17 +47,16 @@ public class EncoderSocket extends WebSocketServer {
 				put("code", HttpStatus.LOCKED.value());
 				put("message", "Another client is already connected to socket");
 			}}.toString());
-			conn.close();
+			conn.close(CloseFrame.REFUSE);
 			return;
 		}
 		client = conn;
 
-		Application.logger.info("Connection estabilished: " + conn.getLocalSocketAddress().toString());
+		Application.logger.info("Connection estabilished: " + conn.getRemoteSocketAddress().toString());
 	}
 
 	@Override
 	public void onClose(WebSocket conn, int code, String reason, boolean remote) {
-		client = null;
 		Application.logger.info("Connection undone");
 	}
 
