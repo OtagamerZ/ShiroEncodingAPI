@@ -42,7 +42,7 @@ public class EncoderSocket extends WebSocketServer {
 
 	@Override
 	public void onOpen(WebSocket conn, ClientHandshake handshake) {
-		System.out.println(handshake.getFieldValue("Authentication"));
+		handshake.iterateHttpFields().forEachRemaining(System.out::println);
 		/*if (client != null) {
 			conn.send(new JSONObject() {{
 				put("code", HttpStatus.LOCKED.value());
