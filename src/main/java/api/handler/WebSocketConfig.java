@@ -24,9 +24,7 @@ public class WebSocketConfig {
 	private final EncoderSocket encoder;
 
 	public WebSocketConfig() {
-		encoder = new EncoderSocket(new InetSocketAddress(8003));
-
-		encoder.start();
+		encoder = new EncoderSocket();
 	}
 
 	public EncoderSocket getEncoder() {
