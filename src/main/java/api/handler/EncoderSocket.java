@@ -32,9 +32,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class EncoderSocket extends WebSocketServer {
+	private final Map<String, WebSocket> clients = new HashMap<>();
 	private final Map<String, VideoData> pending = new HashMap<>();
 	private final EncodingQueue queue = new EncodingQueue();
-	private WebSocket client = null;
 
 	public EncoderSocket(InetSocketAddress address) {
 		super(address);
@@ -42,16 +42,15 @@ public class EncoderSocket extends WebSocketServer {
 
 	@Override
 	public void onOpen(WebSocket conn, ClientHandshake handshake) {
-		System.out.println(handshake.getFieldValue("Authentication"));
-		/*if () {
+		System.out.println();
+		if (!handshake.getFieldValue("Authentication").equals(System.getenv("AUTH"))) {
 			conn.send(new JSONObject() {{
-				put("code", HttpStatus.LOCKED.value());
-				put("message", "Another client is already connected to socket");
+				put("code", HttpStatus.UNAUTHORIZED.value());
+				put("message", "Connection not authorized for supplied token");
 			}}.toString());
 			conn.close(CloseFrame.REFUSE);
 			return;
-		}*/
-		client = conn;
+		}
 
 		Application.logger.info("Connection estabilished: " + conn.getRemoteSocketAddress().toString());
 	}
@@ -63,7 +62,6 @@ public class EncoderSocket extends WebSocketServer {
 
 	@Override
 	public void onMessage(WebSocket conn, String payload) {
-		/*
 		try {
 			JSONObject data = new JSONObject(payload);
 
@@ -77,9 +75,10 @@ public class EncoderSocket extends WebSocketServer {
 			switch (type) {
 				case PING -> {
 					jo.put("code", HttpStatus.FOUND.value());
-					Application.logger.info("Ping received");
+					Application.logger.info("Ping received from " + conn.getRemoteSocketAddress().toString());
 				}
 				case BEGIN -> {
+					clients.put(hash, conn);
 					if (pending.containsKey(hash)) {
 						conn.send(new JSONObject() {{
 							put("code", HttpStatus.METHOD_NOT_ALLOWED.value());
@@ -127,7 +126,6 @@ public class EncoderSocket extends WebSocketServer {
 				put("message", "Not enough fields were supplied for this type");
 			}}.toString());
 		}
-		 */
 	}
 
 	@Override
@@ -140,7 +138,7 @@ public class EncoderSocket extends WebSocketServer {
 		Application.logger.info("WebSocket \"encoder\" iniciado na porta " + this.getPort());
 	}
 
-	public WebSocket getClient() {
-		return client;
+	public WebSocket getClient(String hash) {
+		return clients.remove(hash);
 	}
 }
