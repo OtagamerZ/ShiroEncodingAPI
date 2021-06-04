@@ -20,44 +20,50 @@ package api.handler;
 
 import api.Application;
 import org.java_websocket.WebSocket;
+import org.java_websocket.framing.CloseFrame;
+import org.java_websocket.handshake.ClientHandshake;
+import org.java_websocket.server.WebSocketServer;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
 
-import javax.websocket.OnClose;
-import javax.websocket.OnMessage;
-import javax.websocket.OnOpen;
-import javax.websocket.Session;
-import javax.websocket.server.ServerEndpoint;
-import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
 
-@ServerEndpoint("/encoder")
-public class EncoderSocket {
+public class EncoderSocket extends WebSocketServer {
 	private final Map<String, VideoData> pending = new HashMap<>();
 	private final EncodingQueue queue = new EncodingQueue();
-	private Session session = null;
+	private WebSocket client = null;
 
-	@OnOpen
-	public void onOpen(Session session) {
+	public EncoderSocket(InetSocketAddress address) {
+		super(address);
+	}
 
-		/*if (session.getUserProperties()) {
+	@Override
+	public void onOpen(WebSocket conn, ClientHandshake handshake) {
+		System.out.println(handshake.getFieldValue("Authentication"));
+		if (client != null) {
 			conn.send(new JSONObject() {{
 				put("code", HttpStatus.LOCKED.value());
 				put("message", "Another client is already connected to socket");
 			}}.toString());
 			conn.close(CloseFrame.REFUSE);
 			return;
-		}*/
-		this.session = session;
+		}
+		client = conn;
 
-		//Application.logger.info("Connection estabilished: " + session.getUserProperties());
+		Application.logger.info("Connection estabilished: " + conn.getRemoteSocketAddress().toString());
 	}
 
-	@OnMessage
-	public void onMessage(Session session, String payload) {
-		/*try {
+	@Override
+	public void onClose(WebSocket conn, int code, String reason, boolean remote) {
+		Application.logger.info("Connection undone");
+	}
+
+	@Override
+	public void onMessage(WebSocket conn, String payload) {
+		try {
 			JSONObject data = new JSONObject(payload);
 
 			String hash = data.getString("hash");
@@ -119,18 +125,20 @@ public class EncoderSocket {
 				put("code", HttpStatus.BAD_REQUEST.value());
 				put("message", "Not enough fields were supplied for this type");
 			}}.toString());
-		}*/
-	}
-
-	public Session getSession() {
-		return session;
-	}
-
-	public void send(String msg) {
-		try {
-			session.getBasicRemote().sendText(msg);
-		} catch (IOException e) {
-			e.printStackTrace();
 		}
+	}
+
+	@Override
+	public void onError(WebSocket conn, Exception ex) {
+
+	}
+
+	@Override
+	public void onStart() {
+		Application.logger.info("WebSocket \"encoder\" iniciado na porta " + this.getPort());
+	}
+
+	public WebSocket getClient() {
+		return client;
 	}
 }
