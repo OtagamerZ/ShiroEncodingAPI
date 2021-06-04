@@ -120,7 +120,6 @@ public class EncoderSocket extends WebSocketServer {
 
 			conn.send(jo.toString());
 		} catch (JSONException e) {
-			e.printStackTrace();
 			conn.send(new JSONObject() {{
 				put("code", HttpStatus.BAD_REQUEST.value());
 				put("message", "Not enough fields were supplied for this type");
