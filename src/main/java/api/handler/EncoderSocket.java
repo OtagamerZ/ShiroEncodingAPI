@@ -87,7 +87,7 @@ public class EncoderSocket extends WebSocketServer {
 					}
 					int size = data.getInt("size");
 					pending.put(hash, new VideoData(hash, size, data.getInt("width"), data.getInt("height")));
-					Application.logger.info("Received payload (total frames: " + size + ") with hash " + hash + ": Data stream BEGIN");
+					Application.logger.info("Received request header (total frames: " + size + ") with hash " + hash + ": Data stream BEGIN");
 					jo.put("code", HttpStatus.CREATED.value());
 				}
 				case NEXT -> {
@@ -100,7 +100,7 @@ public class EncoderSocket extends WebSocketServer {
 						return;
 					}
 					vd.getFrames().add(data.getString("data"));
-					Application.logger.info("Received payload (" + vd.getFrames().size() + "/" + vd.getSize() + ") with hash " + hash + ": Data stream NEXT");
+					Application.logger.info("Received request packet (" + vd.getFrames().size() + "/" + vd.getSize() + ") with hash " + hash + ": Data stream NEXT");
 					jo.put("code", HttpStatus.CONTINUE.value());
 				}
 				case END -> {
@@ -113,7 +113,7 @@ public class EncoderSocket extends WebSocketServer {
 						return;
 					}
 					queue.queue(vd);
-					Application.logger.info("Received payload (" + (vd.getFrames().size() * 100 / vd.getSize()) + "% received) with hash " + hash + ": Data stream END");
+					Application.logger.info("Received request trailer (" + (vd.getFrames().size() * 100 / vd.getSize()) + "% received) with hash " + hash + ": Data stream END");
 					jo.put("code", HttpStatus.PROCESSING.value());
 				}
 			}
