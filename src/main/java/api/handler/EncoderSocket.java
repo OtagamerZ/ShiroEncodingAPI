@@ -29,6 +29,7 @@ import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -123,5 +124,13 @@ public class EncoderSocket {
 
 	public Session getSession() {
 		return session;
+	}
+
+	public void send(String msg) {
+		try {
+			session.getBasicRemote().sendText(msg);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }
