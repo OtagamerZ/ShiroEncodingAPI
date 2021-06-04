@@ -24,8 +24,19 @@ public class WebSocketConfig {
 	private final EncoderSocket encoder;
 
 	public WebSocketConfig() {
-		encoder = new EncoderSocket(new InetSocketAddress(8003));
+		EncoderSocket tmp = null;
+		boolean connected = false;
+		while (!connected) {
+			tmp = new EncoderSocket(new InetSocketAddress(8003));
+			connected = true;
+			try {
+				Thread.sleep(2000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
 
+		encoder = tmp;
 		encoder.start();
 	}
 
