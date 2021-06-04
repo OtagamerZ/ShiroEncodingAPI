@@ -25,6 +25,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.io.File;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -43,5 +45,14 @@ public class Application {
 
 	public static ExecutorService getExec() {
 		return exec;
+	}
+
+	public static String hash(byte[] bytes, String encoding) {
+		try {
+			return Hex.encodeHexString(MessageDigest.getInstance(encoding).digest(bytes));
+		} catch (NoSuchAlgorithmException e) {
+			logger.error(e + " | " + e.getStackTrace()[0]);
+			return "";
+		}
 	}
 }

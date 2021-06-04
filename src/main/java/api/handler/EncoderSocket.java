@@ -20,49 +20,43 @@ package api.handler;
 
 import api.Application;
 import org.java_websocket.WebSocket;
-import org.java_websocket.framing.CloseFrame;
-import org.java_websocket.handshake.ClientHandshake;
-import org.java_websocket.server.WebSocketServer;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
 
-import java.net.InetSocketAddress;
+import javax.websocket.OnClose;
+import javax.websocket.OnMessage;
+import javax.websocket.OnOpen;
+import javax.websocket.Session;
+import javax.websocket.server.ServerEndpoint;
 import java.util.HashMap;
 import java.util.Map;
 
-public class EncoderSocket extends WebSocketServer {
+@ServerEndpoint("/encoder")
+public class EncoderSocket {
 	private final Map<String, VideoData> pending = new HashMap<>();
 	private final EncodingQueue queue = new EncodingQueue();
-	private WebSocket client = null;
+	private Session session = null;
 
-	public EncoderSocket(InetSocketAddress address) {
-		super(address);
-	}
+	@OnOpen
+	public void onOpen(Session session) {
 
-	@Override
-	public void onOpen(WebSocket conn, ClientHandshake handshake) {
-		if (client != null) {
+		/*if (session.getUserProperties()) {
 			conn.send(new JSONObject() {{
 				put("code", HttpStatus.LOCKED.value());
 				put("message", "Another client is already connected to socket");
 			}}.toString());
 			conn.close(CloseFrame.REFUSE);
 			return;
-		}
-		client = conn;
+		}*/
+		this.session = session;
 
-		Application.logger.info("Connection estabilished: " + conn.getRemoteSocketAddress().toString());
+		//Application.logger.info("Connection estabilished: " + session.getUserProperties());
 	}
 
-	@Override
-	public void onClose(WebSocket conn, int code, String reason, boolean remote) {
-		Application.logger.info("Connection undone");
-	}
-
-	@Override
-	public void onMessage(WebSocket conn, String payload) {
-		try {
+	@OnMessage
+	public void onMessage(Session session, String payload) {
+		/*try {
 			JSONObject data = new JSONObject(payload);
 
 			String hash = data.getString("hash");
@@ -124,20 +118,10 @@ public class EncoderSocket extends WebSocketServer {
 				put("code", HttpStatus.BAD_REQUEST.value());
 				put("message", "Not enough fields were supplied for this type");
 			}}.toString());
-		}
+		}*/
 	}
 
-	@Override
-	public void onError(WebSocket conn, Exception ex) {
-
-	}
-
-	@Override
-	public void onStart() {
-		Application.logger.info("WebSocket \"encoder\" iniciado na porta " + this.getPort());
-	}
-
-	public WebSocket getClient() {
-		return client;
+	public Session getSession() {
+		return session;
 	}
 }
