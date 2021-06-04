@@ -28,17 +28,9 @@ public class WebSocketConfig {
 	private EncoderSocket encoder = null;
 
 	public WebSocketConfig() {
-		try {
-			InetSocketAddress addr = new InetSocketAddress(8003);
-			ServerSocket socket = new ServerSocket();
-			socket.setReuseAddress(true);
-			socket.bind(addr);
-
-			encoder = new EncoderSocket(addr);
-			encoder.start();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		encoder = new EncoderSocket(new InetSocketAddress(8003));
+		encoder.setReuseAddr(true);
+		encoder.start();
 	}
 
 	public EncoderSocket getEncoder() {
