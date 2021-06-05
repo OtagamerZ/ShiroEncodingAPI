@@ -27,6 +27,7 @@ public class EncodingQueue {
 					put("url", "");
 				}
 			}}.toString());
+			System.out.println("Data sent");
 		});
 	}
 }
