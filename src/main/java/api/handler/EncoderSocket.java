@@ -19,6 +19,7 @@
 package api.handler;
 
 import api.Application;
+import org.apache.commons.lang3.ArrayUtils;
 import org.java_websocket.WebSocket;
 import org.java_websocket.framing.CloseFrame;
 import org.java_websocket.handshake.ClientHandshake;
@@ -100,7 +101,10 @@ public class EncoderSocket extends WebSocketServer {
 						}}.toString());
 						return;
 					}
-					vd.getFrames().add(Application.uncompress((byte[]) data.get("data")));
+					Byte[] bytes = data.getJSONArray("data").toList().stream()
+							.map(o -> (byte) o)
+							.toArray(Byte[]::new);
+					vd.getFrames().add(Application.uncompress(ArrayUtils.toPrimitive(bytes)));
 					Application.logger.info("Received request packet (" + vd.getFrames().size() + "/" + vd.getSize() + ") with hash " + hash + ": Data stream NEXT");
 					jo.put("code", HttpStatus.CONTINUE.value());
 				}
