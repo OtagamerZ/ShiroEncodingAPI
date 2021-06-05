@@ -21,7 +21,6 @@ package api.handler;
 import api.Application;
 import org.apache.commons.lang3.ArrayUtils;
 import org.java_websocket.WebSocket;
-import org.java_websocket.framing.CloseFrame;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 import org.json.JSONException;
@@ -44,21 +43,21 @@ public class EncoderSocket extends WebSocketServer {
 
 	@Override
 	public void onOpen(WebSocket conn, ClientHandshake handshake) {
-		if (!handshake.getFieldValue("Authentication").equals(System.getenv("AUTH"))) {
+		/*if (!handshake.getFieldValue("Authentication").equals(System.getenv("AUTH"))) {
 			conn.send(new JSONObject() {{
 				put("code", HttpStatus.UNAUTHORIZED.value());
 				put("message", "Connection not authorized for supplied token");
 			}}.toString());
 			conn.close(CloseFrame.REFUSE);
 			return;
-		}
+		}*/
 
-		Application.logger.info("Connection estabilished: " + conn.getRemoteSocketAddress().toString());
+		Application.logger.debug("Connection estabilished: " + conn.getRemoteSocketAddress().toString());
 	}
 
 	@Override
 	public void onClose(WebSocket conn, int code, String reason, boolean remote) {
-		Application.logger.info("Connection undone");
+		Application.logger.debug("Connection undone");
 	}
 
 	@Override
