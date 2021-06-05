@@ -27,6 +27,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
@@ -99,7 +100,7 @@ public class EncoderSocket extends WebSocketServer {
 						}}.toString());
 						return;
 					}
-					vd.getFrames().add(data.getString("data"));
+					vd.getFrames().add(Application.uncompress((byte[]) data.get("data")));
 					Application.logger.info("Received request packet (" + vd.getFrames().size() + "/" + vd.getSize() + ") with hash " + hash + ": Data stream NEXT");
 					jo.put("code", HttpStatus.CONTINUE.value());
 				}
@@ -123,6 +124,11 @@ public class EncoderSocket extends WebSocketServer {
 			conn.send(new JSONObject() {{
 				put("code", HttpStatus.BAD_REQUEST.value());
 				put("message", "Not enough fields were supplied for this type");
+			}}.toString());
+		} catch (IOException e) {
+			conn.send(new JSONObject() {{
+				put("code", HttpStatus.BAD_REQUEST.value());
+				put("message", "Wrong or uncompressable data type sent as packet");
 			}}.toString());
 		}
 	}

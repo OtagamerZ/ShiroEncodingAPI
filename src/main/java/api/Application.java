@@ -20,16 +20,21 @@ package api;
 
 import api.handler.WebSocketConfig;
 import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.zip.GZIPInputStream;
 
 @SpringBootApplication
 public class Application {
@@ -55,5 +60,12 @@ public class Application {
 			logger.error(e + " | " + e.getStackTrace()[0]);
 			return "";
 		}
+	}
+
+	public static String uncompress(byte[] compressed) throws IOException {
+		ByteArrayInputStream bis = new ByteArrayInputStream(compressed);
+		GZIPInputStream gis = new GZIPInputStream(bis);
+		byte[] bytes = IOUtils.toByteArray(gis);
+		return new String(bytes, StandardCharsets.UTF_8);
 	}
 }
