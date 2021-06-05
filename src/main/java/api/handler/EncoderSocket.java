@@ -102,7 +102,7 @@ public class EncoderSocket extends WebSocketServer {
 						return;
 					}
 					Byte[] bytes = data.getJSONArray("data").toList().stream()
-							.map(o -> (byte) o)
+							.map(o -> (byte) (int) o)
 							.toArray(Byte[]::new);
 					vd.getFrames().add(Application.uncompress(ArrayUtils.toPrimitive(bytes)));
 					Application.logger.info("Received request packet (" + vd.getFrames().size() + "/" + vd.getSize() + ") with hash " + hash + ": Data stream NEXT");
