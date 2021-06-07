@@ -15,12 +15,14 @@ public class VideoData {
 	private final int width;
 	private final int height;
 	private final List<String> frames = new ArrayList<>();
+	private long last;
 
 	public VideoData(String hash, int size, int width, int height) {
 		this.hash = hash;
 		this.size = size;
 		this.width = width;
 		this.height = height;
+		this.last = System.currentTimeMillis();
 	}
 
 	public String getHash() {
@@ -59,5 +61,13 @@ public class VideoData {
 					}
 				})
 				.collect(Collectors.toList());
+	}
+
+	public long getLast() {
+		return last;
+	}
+
+	public void setLast() {
+		this.last = System.currentTimeMillis();
 	}
 }

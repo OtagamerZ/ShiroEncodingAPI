@@ -53,15 +53,6 @@ public class Application {
 		return exec;
 	}
 
-	public static String hash(byte[] bytes, String encoding) {
-		try {
-			return Hex.encodeHexString(MessageDigest.getInstance(encoding).digest(bytes));
-		} catch (NoSuchAlgorithmException e) {
-			logger.error(e + " | " + e.getStackTrace()[0]);
-			return "";
-		}
-	}
-
 	public static String uncompress(byte[] compressed) throws IOException {
 		ByteArrayInputStream bis = new ByteArrayInputStream(compressed);
 		GZIPInputStream gis = new GZIPInputStream(bis);

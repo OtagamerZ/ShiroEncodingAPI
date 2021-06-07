@@ -31,7 +31,10 @@ import org.springframework.http.HttpStatus;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class EncoderSocket extends WebSocketServer {
 	private final Map<String, WebSocket> clients = new HashMap<>();
@@ -40,6 +43,22 @@ public class EncoderSocket extends WebSocketServer {
 
 	public EncoderSocket(InetSocketAddress address) {
 		super(address);
+
+		Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
+			Iterator<Map.Entry<String, VideoData>> iterator = pending.entrySet().iterator();
+			while (iterator.hasNext()) {
+				Map.Entry<String, VideoData> entry = iterator.next();
+
+				if (System.currentTimeMillis() - entry.getValue().getLast() > 60000) {
+					iterator.remove();
+					clients.remove(entry.getKey()).send(new JSONObject() {{
+						put("code", HttpStatus.REQUEST_TIMEOUT.value());
+						put("message", "Time between packets cannot exceed 1 minute");
+					}}.toString());
+					Application.logger.info("Request timeouted with hash " + entry.getKey() + ": Data stream TIMEOUT");
+				}
+			}
+		}, 0, 2000, TimeUnit.MILLISECONDS);
 	}
 
 	@Override
@@ -101,6 +120,7 @@ public class EncoderSocket extends WebSocketServer {
 						}}.toString());
 						return;
 					}
+					vd.setLast();
 					Byte[] bytes = data.getJSONArray("data").toList().stream()
 							.map(o -> (byte) (int) o)
 							.toArray(Byte[]::new);
@@ -117,6 +137,7 @@ public class EncoderSocket extends WebSocketServer {
 						}}.toString());
 						return;
 					}
+					vd.setLast();
 					queue.queue(vd);
 					Application.logger.info("Received request trailer (" + (vd.getFrames().size() * 100 / vd.getSize()) + "% received) with hash " + hash + ": Data stream END");
 					jo.put("code", HttpStatus.PROCESSING.value());
