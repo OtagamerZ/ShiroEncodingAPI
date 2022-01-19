@@ -29,7 +29,7 @@ public class Encoder {
 		rec.setOption("hwaccel", "opencl");
 		rec.setVideoBitrate(2 * 1024 * 1024);
 		rec.setVideoQuality(0);
-		rec.setFrameRate(1);
+		rec.setFrameRate(0.5);
 		rec.setPixelFormat(avutil.AV_PIX_FMT_YUV420P);
 		rec.setFormat("mp4");
 		rec.start();
