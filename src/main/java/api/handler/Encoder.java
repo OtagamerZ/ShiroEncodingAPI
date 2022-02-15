@@ -20,8 +20,7 @@ public class Encoder {
 		int h = alignData(data.getHeight());
 
 		File f = new File(Application.files, data.getHash() + ".mp4");
-		if (!f.exists())
-			f.createNewFile();
+		if (!f.exists()) f.createNewFile();
 
 		FFmpegFrameRecorder rec = new FFmpegFrameRecorder(f, w, h, 0);
 		rec.setVideoCodec(avcodec.AV_CODEC_ID_H264);

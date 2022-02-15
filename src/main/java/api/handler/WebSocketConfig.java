@@ -18,14 +18,10 @@
 
 package api.handler;
 
-import java.io.IOException;
-import java.net.BindException;
 import java.net.InetSocketAddress;
-import java.net.ServerSocket;
-import java.net.SocketException;
 
 public class WebSocketConfig {
-	private EncoderSocket encoder;
+	private final EncoderSocket encoder;
 
 	public WebSocketConfig() {
 		encoder = new EncoderSocket(new InetSocketAddress(8003));

@@ -9,13 +9,28 @@ buildscript {
 
 plugins {
     id 'java'
+    id 'idea'
+    id 'application'
     id "org.springframework.boot" version "2.3.4.RELEASE"
+    id "io.spring.dependency-management" version "1.0.11.RELEASE"
 }
 
 group 'com.kuuhaku'
 version 'STANDALONE'
 sourceCompatibility = JavaVersion.VERSION_15
 targetCompatibility = JavaVersion.VERSION_15
+applicationDefaultJvmArgs = [
+        "-Xms512M",
+        "-Xmx1G",
+        "-XX:+UseZGC",
+        "-XX:+UseStringDeduplication",
+        "-XX:+HeapDumpOnOutOfMemoryError",
+        "-Dfile.encoding=UTF-8",
+        "-Duser.timezone=America/Sao_Paulo",
+        "-Djava.awt.headless=true",
+        "-Dsun.java2d.opengl=true",
+        "-Dlog4j2.contextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector"
+]
 
 repositories {
     mavenCentral()
@@ -33,12 +48,11 @@ dependencies {
     testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '2.3.4.RELEASE'
 }
 
-apply plugin: 'org.springframework.boot'
-apply plugin: 'io.spring.dependency-management'
-
-bootJar {
-    baseName = 'gs-rest-service'
-    version =  '0.1.0'
+idea {
+    module {
+        downloadJavadoc = true
+        downloadSources = true
+    }
 }
 
 compileJava.options.encoding = 'UTF-8'
