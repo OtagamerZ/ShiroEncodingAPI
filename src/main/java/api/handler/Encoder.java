@@ -25,9 +25,10 @@ public class Encoder {
 		FFmpegFrameRecorder rec = new FFmpegFrameRecorder(f, w, h, 0);
 		rec.setVideoCodec(avcodec.AV_CODEC_ID_H264);
 		rec.setVideoOption("preset", "veryfast");
+		rec.setVideoOption("tune", "stillimage");
 		rec.setOption("hwaccel", "opencl");
-		rec.setVideoBitrate(2 * 1024 * 1024);
-		rec.setVideoQuality(0);
+		//rec.setVideoBitrate(2 * 1024 * 1024);
+		rec.setVideoQuality(18);
 		rec.setFrameRate(0.5);
 		rec.setPixelFormat(avutil.AV_PIX_FMT_YUV420P);
 		rec.setFormat("mp4");
