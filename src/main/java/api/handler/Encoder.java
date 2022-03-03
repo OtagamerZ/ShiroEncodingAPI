@@ -22,27 +22,30 @@ public class Encoder {
 		File f = new File(Application.files, data.getHash() + ".mp4");
 		if (!f.exists()) f.createNewFile();
 
-		FFmpegFrameRecorder rec = new FFmpegFrameRecorder(f, w, h, 0);
-		rec.setVideoCodec(avcodec.AV_CODEC_ID_H264);
-		rec.setVideoOption("preset", "veryfast");
-		rec.setVideoOption("tune", "stillimage");
-		rec.setOption("hwaccel", "opencl");
-		//rec.setVideoBitrate(2 * 1024 * 1024);
-		rec.setVideoQuality(18);
-		rec.setFrameRate(0.5);
-		rec.setPixelFormat(avutil.AV_PIX_FMT_YUV420P);
-		rec.setFormat("mp4");
-		rec.start();
+		try (FFmpegFrameRecorder rec = new FFmpegFrameRecorder(f, w, h, 0)) {
+			rec.setVideoCodec(avcodec.AV_CODEC_ID_H264);
+			rec.setVideoOption("preset", "veryfast");
+			rec.setVideoOption("tune", "stillimage");
+			rec.setOption("hwaccel", "opencl");
+			//rec.setVideoBitrate(2 * 1024 * 1024);
+			rec.setVideoQuality(18);
+			rec.setFrameRate(0.5);
+			rec.setPixelFormat(avutil.AV_PIX_FMT_YUV420P);
+			rec.setFormat("mp4");
+			rec.start();
 
-		List<BufferedImage> frames = data.getDecodedFrames();
-		Java2DFrameConverter conv = new Java2DFrameConverter();
-		for (BufferedImage frame : frames) {
-			rec.record(conv.convert(center(convert(frame), w, h)), avutil.AV_PIX_FMT_0RGB);
+			List<BufferedImage> frames = data.getDecodedFrames();
+			Java2DFrameConverter conv = new Java2DFrameConverter();
+			for (BufferedImage frame : frames) {
+				rec.record(conv.convert(center(convert(frame), w, h)), avutil.AV_PIX_FMT_0RGB);
+			}
+
+			rec.stop();
+
+			return data.getHash();
+		} finally {
+			System.gc();
 		}
-
-		rec.stop();
-
-		return data.getHash();
 	}
 
 	private static BufferedImage convert(BufferedImage in) {
