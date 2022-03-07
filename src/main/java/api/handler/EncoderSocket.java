@@ -63,7 +63,7 @@ public class EncoderSocket extends WebSocketServer {
 
 	@Override
 	public void onOpen(WebSocket conn, ClientHandshake handshake) {
-		if (!handshake.getFieldValue("Authentication").equals(System.getenv("AUTH"))) {
+		/*if (!handshake.getFieldValue("Authentication").equals(System.getenv("AUTH"))) {
 			Application.logger.info("Denied connection: " + conn.getRemoteSocketAddress().toString());
 			conn.send(new JSONObject() {{
 				put("code", HttpStatus.UNAUTHORIZED.value());
@@ -71,7 +71,7 @@ public class EncoderSocket extends WebSocketServer {
 			}}.toString());
 			conn.close(CloseFrame.REFUSE);
 			return;
-		}
+		}*/
 
 		Application.logger.debug("Connection estabilished: " + conn.getRemoteSocketAddress().toString());
 	}
