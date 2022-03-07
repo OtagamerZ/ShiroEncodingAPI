@@ -64,6 +64,7 @@ public class EncoderSocket extends WebSocketServer {
 	@Override
 	public void onOpen(WebSocket conn, ClientHandshake handshake) {
 		if (!handshake.getFieldValue("Authentication").equals(System.getenv("AUTH"))) {
+			Application.logger.info("Denied connection: " + conn.getRemoteSocketAddress().toString());
 			conn.send(new JSONObject() {{
 				put("code", HttpStatus.UNAUTHORIZED.value());
 				put("message", "Connection not authorized for supplied token");
