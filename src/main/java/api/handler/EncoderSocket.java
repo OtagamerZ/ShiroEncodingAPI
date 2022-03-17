@@ -72,12 +72,12 @@ public class EncoderSocket extends WebSocketServer {
 			return;
 		}
 
-		Application.logger.debug("Connection estabilished: " + conn.getRemoteSocketAddress().toString());
+		Application.logger.info("Connection estabilished: " + conn.getRemoteSocketAddress());
 	}
 
 	@Override
 	public void onClose(WebSocket conn, int code, String reason, boolean remote) {
-		Application.logger.debug("Connection undone");
+		Application.logger.info("Connection undone: " + conn.getRemoteSocketAddress());
 	}
 
 	@Override
